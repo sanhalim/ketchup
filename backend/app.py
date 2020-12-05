@@ -8,26 +8,36 @@ from datetime import datetime
 app = Flask(__name__, static_url_path="")
 api = Api(app)
 
-app.config.from_pyfile('hello.cfg')
+app.config.from_pyfile('ketchup.cfg')
 db = SQLAlchemy(app)
 sessionmaker = sqlalchemy.orm.sessionmaker(db.engine)
 
-
-class Todo(db.Model):
+class CheckIn(db.Model):
     #example model from tutorial
-    __tablename__ = 'todos'
-    id = db.Column('todo_id', db.Integer, primary_key=True)
-    title = db.Column(db.String(60))
+    __tablename__ = 'daily_checkin'
+    id = db.Column('checkin_id', db.Integer, primary_key=True)
+    user_id = db.Column(db.Integer, db.ForeignKey('user.id'))
     text = db.Column(db.String)
-    done = db.Column(db.Boolean)
-    pub_date = db.Column(db.DateTime)
+    sentiment = db.Column(db.Float)
+    emotion = db.Column(db.String)
+    date = db.Column(db.DateTime)
 
-    def __init__(self, title, text):
-        self.title = title
+    def __init__(self, user_id, text, sentiment, emotion="None"):
+        self.user_id = user_id
         self.text = text
-        self.done = False
-        self.pub_date = datetime.utcnow()
+        self.sentiment = sentiment
+        self.emotion = emotion
+        self.date = datetime.utcnow()
 
+
+class User(db.Model):
+    __tablename__ = 'user'
+    id = db.Column(db.Integer, primary_key=True)
+    name = db.Column(db.String)
+    children = db.relationship("CheckIn")
+
+    def __init__(self, name):
+        self.name = name
 
 class EmotionTranslater(Resource):
     def __init__(self):
