@@ -2,13 +2,14 @@ from flask import Flask, jsonify, abort, make_response
 from flask_restful import Api, Resource, reqparse, fields, marshal
 import sqlalchemy.orm
 from cockroachdb.sqlalchemy import run_transaction
-from backend.models import CheckIn, db
+from models import CheckIn, db
 
 app = Flask(__name__, static_url_path="")
 api = Api(app)
+app.config.from_pyfile('ketchup.cfg')
+app.app_context().push()
 db.init_app(app)
 
-app.config.from_pyfile('ketchup.cfg')
 sessionmaker = sqlalchemy.orm.sessionmaker(db.engine)
 
 class EmotionTranslater(Resource):
@@ -26,7 +27,7 @@ class EmotionTranslater(Resource):
 
     def checkin_by_user(self, user_id):
         def callback(session):
-            return session.query(CheckIn).order_by(CheckIn.date.desc()).limit(10).all()
+            return session.query(CheckIn).filter_by(user_id=user_id).order_by(CheckIn.date.desc()).limit(10).all()
         run_transaction(sessionmaker, callback)
 
     def get(self, id):
