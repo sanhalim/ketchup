@@ -1,3 +1,6 @@
+# authenticate access to Google Cloud Console Project:
+#   export GOOGLE_APPLICATION_CREDENTIALS="/Users/gracetian/Desktop/hackduke2020/backend/google-app-cred.json"
+
 from flask import Flask, jsonify, abort, make_response
 from flask_restful import Api, Resource, reqparse, fields, marshal
 import sqlalchemy.orm
