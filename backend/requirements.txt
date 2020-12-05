@@ -2,4 +2,4 @@ flask
 flask_restful
 flask-sqlalchemy
 sqlalchemy-cockroachdb
-# google-cloud-language
+google-cloud-language

@@ -1,5 +1,6 @@
 import argparse
 from google.cloud import language_v1
+#   export GOOGLE_APPLICATION_CREDENTIALS="/Users/gracetian/Desktop/hackduke2020/backend/google-app-cred.json"
 
 def sample_analyze_sentiment(text_content):
     """

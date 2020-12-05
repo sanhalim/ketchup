@@ -6,13 +6,14 @@ from flask_restful import Api, Resource, reqparse, fields, marshal
 import sqlalchemy.orm
 from cockroachdb.sqlalchemy import run_transaction
 from models import CheckIn, db
+from sentiment import sample_analyze_sentiment
 
 app = Flask(__name__, static_url_path="")
 api = Api(app)
 app.config.from_pyfile('ketchup.cfg')
 app.app_context().push()
 db.init_app(app)
-
+db.create_all()
 sessionmaker = sqlalchemy.orm.sessionmaker(db.engine)
 
 class EmotionTranslater(Resource):
@@ -41,12 +42,12 @@ class EmotionTranslater(Resource):
     def post(self, id):
         args = self.reqparse.parse_args()
         text = args["text"]
-        #send text to google cloud translate api
-        sentiment = 0
+        annotations = sample_analyze_sentiment(text)
+        sentiment = annotations.document_sentiment.score
         emotion = ""
         ketchup = CheckIn(id, text, sentiment, emotion)
         self.add_checkin_to_db(ketchup)
-        return {"emotion": emotion, "sentiment": sentiment}, 201
+        return jsonify({"emotion": emotion, "sentiment": sentiment})
 
 api.add_resource(EmotionTranslater, '/api/emotion/<int:id>', endpoint='tasks')
 

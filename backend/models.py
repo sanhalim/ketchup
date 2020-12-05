@@ -6,7 +6,7 @@ class CheckIn(db.Model):
     #example model from tutorial
     __tablename__ = 'daily_checkin'
     id = db.Column('checkin_id', db.Integer, primary_key=True)
-    user_id = db.Column(db.Integer, db.ForeignKey('user.id'))
+    user_id = db.Column(db.Integer)
     text = db.Column(db.String)
     sentiment = db.Column(db.Float)
     emotion = db.Column(db.String)
@@ -20,11 +20,11 @@ class CheckIn(db.Model):
         self.date = datetime.utcnow()
 
 
-class User(db.Model):
-    __tablename__ = 'user'
-    id = db.Column(db.Integer, primary_key=True)
-    name = db.Column(db.String)
-    children = db.relationship("CheckIn")
-
-    def __init__(self, name):
-        self.name = name
+# class User(db.Model):
+#     __tablename__ = 'user'
+#     id = db.Column(db.Integer, primary_key=True)
+#     name = db.Column(db.String)
+#     children = db.relationship("CheckIn")
+#
+#     def __init__(self, name):
+#         self.name = name
