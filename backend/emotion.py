@@ -1,4 +1,3 @@
-import deepaffects
 import requests
 
 def get_emotion(text_content):

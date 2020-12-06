@@ -6,6 +6,8 @@ from models import CheckIn, db
 from sentiment import get_sentiment
 from emotion import get_emotion
 import json
+from scipy import stats
+import numpy
 
 app = Flask(__name__, static_url_path="")
 api = Api(app)
@@ -32,20 +34,39 @@ class EmotionTranslater(Resource):
     # user_id: user id from alexa
     def checkin_by_user(self, user_id):
         def callback(session):
-            return session.query(CheckIn).filter_by(user_id=user_id).order_by(CheckIn.date.desc()).limit(10).all()
-        run_transaction(sessionmaker, callback)
+            ketchup_bottle = session.query(CheckIn).filter_by(user_id=user_id).order_by(CheckIn.date.desc()).limit(20).all()
+            session.expunge_all()
+            return ketchup_bottle
+        return run_transaction(sessionmaker, callback)
+
+
+    def get_data(self, id):
+        ketchup_bottle = self.checkin_by_user(id)
+        print(ketchup_bottle)
+
+        # include analysis parameters:
+        values = [ketchup.sentiment for ketchup in ketchup_bottle]
+        dates = [ketchup.date.timestamp() for ketchup in ketchup_bottle]
+        average = numpy.average(values)
+        emotions = {}
+        for ketchup in ketchup_bottle:
+            emotions.setdefault(ketchup.emotion, 0)
+            emotions[ketchup.emotion] += 1
+        emotions = [(emotions[key], key) for key in emotions]
+        most_common = max(emotions)[1]
+        slope, intercept, r_value, p_value, std_err = stats.linregress(values, dates)
+        r2 = r_value ** 2
+        return most_common, average, slope, r2
 
     # id: user id from alexa
     def get(self, id):
         # ketchup_bottle: all data from that user
-        ketchup_bottle = self.checkin_by_user(id)
 
-        # include analysis parameters:
         #   - average sentiment over 2 week period
         #   - most frequent emotion
         #   - average rate of change of sentiment over 2 week period
-
-        return {"most_freq_emotion": "", "average_sentiment": 0}
+        most_common, average, slope, r2 = self.get_data(id)
+        return jsonify({"most_freq_emotion": most_common, "average_sentiment": average, "slope": slope, "r2": r2})
 
     def post(self, id):
         args = self.reqparse.parse_args()
@@ -59,13 +80,8 @@ class EmotionTranslater(Resource):
         emotion = list(json.loads(get_emotion(text).text)["response"].keys())[0]
         ketchup = CheckIn(id, text, sentiment, emotion)
         self.add_checkin_to_db(ketchup)
-        #average over twenty days
-        #running average
-        #difference between average and current
-        #slope
-        #rate of change
-        #threshold
-        return jsonify({"emotion": emotion, "sentiment": sentiment})
+        most_common, average, slope, r2 = self.get_data(id)
+        return jsonify({"emotion": emotion, "sentiment": sentiment, "most_freq_emotion": most_common, "average_sentiment": average, "slope": slope, "r2": r2})
 
 api.add_resource(EmotionTranslater, '/api/emotion/<int:id>', endpoint='tasks')
 
