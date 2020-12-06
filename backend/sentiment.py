@@ -2,7 +2,7 @@ import argparse
 from google.cloud import language_v1
 #   export GOOGLE_APPLICATION_CREDENTIALS="/Users/gracetian/Desktop/hackduke2020/backend/google-app-cred.json"
 
-def sample_analyze_sentiment(text_content):
+def get_sentiment(text_content):
     """
     Analyzing Sentiment in a String
 
@@ -45,22 +45,22 @@ def sample_analyze_sentiment(text_content):
 
     return response
 
-def print_result(annotations):
-    score = annotations.document_sentiment.score
-    magnitude = annotations.document_sentiment.magnitude
+# def print_result(annotations):
+#     score = annotations.document_sentiment.score
+#     magnitude = annotations.document_sentiment.magnitude
 
-    for index, sentence in enumerate(annotations.sentences):
-        sentence_sentiment = sentence.sentiment.score
-        print(
-            "Sentence {} has a sentiment score of {}".format(index, sentence_sentiment)
-        )
+#     for index, sentence in enumerate(annotations.sentences):
+#         sentence_sentiment = sentence.sentiment.score
+#         print(
+#             "Sentence {} has a sentiment score of {}".format(index, sentence_sentiment)
+#         )
 
-    print(
-        "Overall Sentiment: score of {} with magnitude of {}".format(score, magnitude)
-    )
-    return 0
+#     print(
+#         "Overall Sentiment: score of {} with magnitude of {}".format(score, magnitude)
+#     )
+#     return 0
 
-if __name__ == "__main__":
-    text_content = 'I am so happy and joyful.'
-    annotations = sample_analyze_sentiment(text_content)
-    print_result(annotations)
+# if __name__ == "__main__":
+#     text_content = 'I am so happy and joyful.'
+#     annotations = sample_analyze_sentiment(text_content)
+#     print_result(annotations)
