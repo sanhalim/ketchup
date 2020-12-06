@@ -5,6 +5,7 @@ from cockroachdb.sqlalchemy import run_transaction
 from models import CheckIn, db
 from sentiment import get_sentiment
 from emotion import get_emotion
+import json
 
 app = Flask(__name__, static_url_path="")
 api = Api(app)
@@ -55,8 +56,7 @@ class EmotionTranslater(Resource):
         sentiment = annotations.document_sentiment.score
 
         # getting emotion from deepaffects text api
-        emotion = get_emotion(text).text
-
+        emotion = list(json.loads(get_emotion(text).text)["response"].keys())[0]
         ketchup = CheckIn(id, text, sentiment, emotion)
         self.add_checkin_to_db(ketchup)
         #average over twenty days
@@ -71,4 +71,5 @@ api.add_resource(EmotionTranslater, '/api/emotion/<int:id>', endpoint='tasks')
 
 
 if __name__ == '__main__':
-    app.run(debug=True)
+    # app.run(debug=True)
+    app.run(host='0.0.0.0')
