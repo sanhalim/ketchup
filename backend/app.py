@@ -59,6 +59,12 @@ class EmotionTranslater(Resource):
 
         ketchup = CheckIn(id, text, sentiment, emotion)
         self.add_checkin_to_db(ketchup)
+        #average over twenty days
+        #running average
+        #difference between average and current
+        #slope
+        #rate of change
+        #threshold
         return jsonify({"emotion": emotion, "sentiment": sentiment})
 
 api.add_resource(EmotionTranslater, '/api/emotion/<int:id>', endpoint='tasks')
