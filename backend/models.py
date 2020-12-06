@@ -6,7 +6,7 @@ class CheckIn(db.Model):
     #example model from tutorial
     __tablename__ = 'daily_checkin'
     id = db.Column('checkin_id', db.Integer, primary_key=True)
-    user_id = db.Column(db.Integer)
+    user_id = db.Column(db.String)
     text = db.Column(db.String)
     sentiment = db.Column(db.Float)
     emotion = db.Column(db.String)

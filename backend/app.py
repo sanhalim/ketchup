@@ -14,6 +14,7 @@ api = Api(app)
 app.config.from_pyfile('ketchup.cfg')
 app.app_context().push()
 db.init_app(app)
+# CheckIn.__table__.drop(db.engine)
 db.create_all()
 sessionmaker = sqlalchemy.orm.sessionmaker(db.engine)
 
@@ -54,7 +55,7 @@ class EmotionTranslater(Resource):
             emotions[ketchup.emotion] += 1
         emotions = [(emotions[key], key) for key in emotions]
         most_common = max(emotions)[1]
-        slope, intercept, r_value, p_value, std_err = stats.linregress(values, dates)
+        slope, intercept, r_value, p_value, std_err = stats.linregress(dates, values)
         r2 = r_value ** 2
         return most_common, average, slope, r2
 
@@ -83,7 +84,7 @@ class EmotionTranslater(Resource):
         most_common, average, slope, r2 = self.get_data(id)
         return jsonify({"emotion": emotion, "sentiment": sentiment, "most_freq_emotion": most_common, "average_sentiment": average, "slope": slope, "r2": r2})
 
-api.add_resource(EmotionTranslater, '/api/emotion/<int:id>', endpoint='tasks')
+api.add_resource(EmotionTranslater, '/api/emotion/<string:id>', endpoint='tasks')
 
 
 if __name__ == '__main__':
